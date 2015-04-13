@@ -12,6 +12,7 @@ use yii\web\HttpException;
  */
 class BasketComponent extends Component
 {
+	public $userClass;
 	public $productClass;
 	public $isGuest;
 
