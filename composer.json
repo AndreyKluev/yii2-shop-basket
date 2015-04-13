@@ -1,0 +1,25 @@
+{
+	"name": "andreykluev/yii2-shop-basket",
+	"description": "Yii2 crud actions",
+	"type": "yii2-extension",
+	"keywords": ["yii2", "basket"],
+	"license": "BSD-3-Clause",
+	"version": "0.1",
+	"authors": [
+		{
+			"name": "Andrey V. Kluev",
+			"email": "andrey.kluev@gmail.com"
+		}
+	],
+	"support": {
+		"source": "https://github.com/AndreyKluev/yii2-shop-basket"
+	},
+	"require": {
+		"yiisoft/yii2": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"andreykluev\\shopbasket\\": ""
+		}
+	}
+}
