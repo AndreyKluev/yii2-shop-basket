@@ -81,10 +81,7 @@ class BasketComponent extends Component
 			// Сохраняем в сессию
 			$this->loadFromSession();
 
-			echo $id_product . "::" . $count;
-
 			if(!$this->isProductInBasket($product->id)) {
-				echo 1111111111111111111;
 				$this->basketProducts[$product->id] = [
 					'count' => $count,
 					'price' => $product->price,
