@@ -5,12 +5,6 @@
 В composer.json:
 
 ```
-"repositories": [
-	{
-		"type": "vcs",
-		"url": "https://github.com/AndreyKluev/yii2-shop-basket.git"
-	}
-],
 "require": {
 	...
 	"andreykluev/yii2-shop-basket":"dev-master"
@@ -60,18 +54,33 @@ class BasketController extends Controller
 ### Подключаем компонент ###
 
 ``` php
-use andreykluev\shopbasket\BasketBehavior;
+use andreykluev\shopbasket\behaviors\BasketUserBehavior;
 
 class User extends ActiveRecord implements IdentityInterface
 {
 	...
-    public function behaviors()
-    {
-        return [
-	        BasketBehavior::className(),
-        ];
-    }
-    ...
+	public function behaviors()
+	{
+		return [
+			BasketUserBehavior::className(),
+		];
+	}
+	...
+```
+
+``` php
+use andreykluev\shopbasket\behaviors\BasketProductBehavior;
+
+class Product extends ActiveRecord
+{
+	...
+	public function behaviors()
+	{
+		return [
+			BasketUserBehavior::className(),
+		];
+	}
+	...
 ```
 
 ``` php
@@ -81,6 +90,7 @@ class User extends ActiveRecord implements IdentityInterface
 
 		'basket' => [
 			'class' => 'andreykluev\shopbasket\BasketComponent',
+			'userClass' => 'common\models\User',
 			'productClass' => 'common\models\Product',
 			'onLogin' => 'merge'
 		]
@@ -92,6 +102,7 @@ class User extends ActiveRecord implements IdentityInterface
 	Yii::$app->basket->getBasketProducts();
 	Yii::$app->basket->getBasketCost();
 	Yii::$app->basket->getBasketCount();
+	Yii::$app->basket->getBasketTotal();
 ```
 
 ## Методы ##

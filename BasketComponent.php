@@ -24,7 +24,10 @@ class BasketComponent extends Component
 	 */
 	public function init()
 	{
-		$this->isGuest = Yii::$app->user->isGuest;
+		//$this->isGuest = Yii::$app->user->isGuest;
+
+		// Пока воспринимаем пользователя, как гостя
+		$this->isGuest = true;
 
 		// Если не гость
 		if (!$this->isGuest) {
