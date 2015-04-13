@@ -80,7 +80,11 @@ class BasketComponent extends Component
 		if($this->isGuest) {
 			// Сохраняем в сессию
 			$this->loadFromSession();
+
+			echo $id_product . "::" . $count;
+
 			if(!$this->isProductInBasket($product->id)) {
+				echo 1111111111111111111;
 				$this->basketProducts[$product->id] = [
 					'count' => $count,
 					'price' => $product->price,
@@ -176,7 +180,8 @@ class BasketComponent extends Component
 	 * @return int|string
 	 */
 	public function isProductInBasketSession($pid) {
-		return Yii::$app->user->identity->isProductInBasket($pid);
+		$this->loadFromSession();
+		return isset($this->basketProducts[$pid]);
 	}
 
 	/**
