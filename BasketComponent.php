@@ -68,30 +68,29 @@ class BasketComponent extends Component
 	 * @return array
 	 * @throws HttpException
 	 */
-	public function insertProduct($id_product, $count=1)
+	public function insertProduct($hash, $price, $params, $count=1)
 	{
-		$product = call_user_func([$this->productClass, 'findOne'], [$id_product]);
-
-		if ($product === null) {
-			throw new HttpException(404, 'Model not found');
-		}
-
 		// Если гость
 		if($this->isGuest) {
 			// Сохраняем в сессию
 			$this->loadFromSession();
 
-			if(!$this->isProductInBasket($product->id)) {
-				$this->basketProducts[$product->id] = [
+			if(!$this->isProductInBasket($hash)) {
+				$this->basketProducts[$hash] = [
 					'count' => $count,
-					'price' => $product->price,
+					'price' => $price,
+                    'params' => $params,
 					'inserted_at' => time()
 				];
-				Yii::$app->session->set('basket', $this->basketProducts);
-			}
+			} else {
+                $this->basketProducts[$hash]['count'] = $count;
+            }
+
+            Yii::$app->session->set('basket', $this->basketProducts);
 		} else {
 			// Или связываем с пользователем в БД
 			// Если этот товар еще не в корзине
+/*
 			if(!$this->isProductInBasket($product->id)) {
 				Yii::$app->user->identity->link('basketProducts', $product, [
 					'count' => $count,
@@ -99,12 +98,13 @@ class BasketComponent extends Component
 					'inserted_at' => time()
 				]);
 			}
+*/
 		}
 
 		return [
-			'count' => $this->getBasketCount(),
-			'total' => $this->getBasketTotal(),
-			'cost'  => $this->getBasketCost(),
+			'count' => Yii::$app->formatter->asInteger( $this->getBasketCount() ),
+			'total' => Yii::$app->formatter->asInteger( $this->getBasketTotal() ),
+			'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' )
 		];
 	}
 
