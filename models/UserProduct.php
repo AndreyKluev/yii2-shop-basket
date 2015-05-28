@@ -12,7 +12,7 @@ use yii\db\ActiveRecord;
 class UserProduct extends ActiveRecord
 {
 	/**
-	 * Связь корзины с товаром
+	 * Связь элемента корзины с товаром
 	 * @return \yii\db\ActiveQuery
 	 */
 	public function getProduct()
@@ -22,7 +22,7 @@ class UserProduct extends ActiveRecord
 	}
 
 	/**
-	 * Связь корзины с пользователем
+	 * Связь элемента корзины с пользователем
 	 * @return \yii\db\ActiveQuery
 	 */
 	public function getUser()
