@@ -4,6 +4,7 @@ namespace andreykluev\shopbasket;
 
 use Yii;
 use yii\base\Component;
+use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
 
 /**
@@ -19,6 +20,8 @@ class BasketComponent extends Component
 	public $basketProducts;
 
 	public $onLogin;
+
+    public $storage;
 
 	/**
 	 *
@@ -56,7 +59,7 @@ class BasketComponent extends Component
 						$this->mergeBasket_merge();
 				}
 
-//				Yii::$app->session->set('basket', []);
+//				Yii::$app->session->set($this->storage, []);
 			}
 		}
 	}
@@ -83,30 +86,56 @@ class BasketComponent extends Component
 					'inserted_at' => time()
 				];
 			} else {
-                $this->basketProducts[$hash]['count'] = $count;
+                // Если кол-во == 1, то удаляем из корзины
+                if(0<$count) {
+                    $this->basketProducts[$hash]['count'] = $count;
+                } else {
+                    unset($this->basketProducts[$hash]);
+                }
             }
 
-            Yii::$app->session->set('basket', $this->basketProducts);
+            Yii::$app->session->set($this->storage, $this->basketProducts);
 		} else {
 			// Или связываем с пользователем в БД
 			// Если этот товар еще не в корзине
-/*
-			if(!$this->isProductInBasket($product->id)) {
-				Yii::$app->user->identity->link('basketProducts', $product, [
-					'count' => $count,
-					'price' => $product->price,
-					'inserted_at' => time()
-				]);
-			}
-*/
+//			if(!$this->isProductInBasket($product->id)) {
+//				Yii::$app->user->identity->link('basketProducts', $product, [
+//					'count' => $count,
+//					'price' => $product->price,
+//					'inserted_at' => time()
+//				]);
+//			}
 		}
 
 		return [
-			'count' => Yii::$app->formatter->asInteger( $this->getBasketCount() ),
-			'total' => Yii::$app->formatter->asInteger( $this->getBasketTotal() ),
-			'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' )
+            'total' => [
+                'count' => Yii::$app->formatter->asInteger( $this->getBasketCount() ),
+                'total' => Yii::$app->formatter->asInteger( $this->getBasketTotal() ),
+                'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' )
+            ],
+            'result' => $this->isProductInBasket($hash)
 		];
 	}
+
+    /**
+     *
+     */
+    public function getProducts()
+    {
+        if ($this->isGuest) {
+            $this->loadFromSession();
+            $ids = array_keys($this->basketProducts);
+            $products = call_user_func([$this->productClass, 'find']);
+
+            $products = $products->where(['id' => $ids]);
+
+            return $products->all();
+        } else {
+
+        }
+
+        return [];
+    }
 
 	/**
 	 * Проверяет, присутствует ли товар в корзине пользователя
@@ -158,7 +187,7 @@ class BasketComponent extends Component
 	 */
 	public function loadFromSession()
 	{
-		$this->basketProducts = Yii::$app->session->get('basket', []);
+		$this->basketProducts = Yii::$app->session->get($this->storage, []);
 	}
 
 	/**
@@ -229,25 +258,25 @@ class BasketComponent extends Component
 	 */
 	public function mergeBasket_sum()
 	{
-		foreach($this->basketProducts as $id => $bp) {
-			$product = call_user_func([$this->productClass, 'findOne'], [$id]);
-
-			if ($this->isProductInBasket($product->id)) {
-				$oldParams = Yii::$app->user->identity->getProductInBasket($product->id);
-
-				var_dump($oldParams);
-				die();
-				Yii::$app->user->identity->unlink('basketProducts', $product, true);
-				$bp['count'] = $bp['count'] + $oldParams->count;
-				$bp['inserted_at'] = min($bp['inserted_at'], $oldParams->inserted_at);
-			}
-
-			Yii::$app->user->identity->link('basketProducts', $product, [
-				'count' => $bp['count'],
-				'price' => $bp['price'],
-				'inserted_at' => $bp['inserted_at']
-			]);
-		}
+//		foreach($this->basketProducts as $id => $bp) {
+//			$product = call_user_func([$this->productClass, 'findOne'], [$id]);
+//
+//			if ($this->isProductInBasket($product->id)) {
+//				$oldParams = Yii::$app->user->identity->getProductInBasket($product->id);
+//
+//				var_dump($oldParams);
+//				die();
+//				Yii::$app->user->identity->unlink('basketProducts', $product, true);
+//				$bp['count'] = $bp['count'] + $oldParams->count;
+//				$bp['inserted_at'] = min($bp['inserted_at'], $oldParams->inserted_at);
+//			}
+//
+//			Yii::$app->user->identity->link('basketProducts', $product, [
+//				'count' => $bp['count'],
+//				'price' => $bp['price'],
+//				'inserted_at' => $bp['inserted_at']
+//			]);
+//		}
 	}
 
 	/**

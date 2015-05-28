@@ -19,4 +19,9 @@ class BasketProductBehavior extends Behavior
 			->via('user_product')
 			->pivot('count', 'price', 'inserted_at');
 	}
+
+    public function isInBasket($yiiComponent)
+    {
+        return $yiiComponent->isProductInBasket($this->owner->id);
+    }
 }

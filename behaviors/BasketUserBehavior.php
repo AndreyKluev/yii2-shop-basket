@@ -93,10 +93,7 @@ class BasketUserBehavior extends Behavior
 			->with('product')
 			->where(['id_product' => $pid])
 			->one();
-/*
-		var_dump($x[0]->product);
-		die();
-*/
+
 		return $x;
 	}
 
