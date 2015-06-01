@@ -11,17 +11,22 @@ use common\models\User;
 
 class BasketProductBehavior extends Behavior
 {
-	public function getUser()
-	{
-		return $this->owner
-			->hasMany('\common\models\User', ['id' => 'id_user'])
-//			->hasMany($this->owner->productClass, ['id' => 'id_product'])
-			->via('user_product')
-			->pivot('count', 'price', 'inserted_at');
-	}
+    /**
+     * Генерит уникальный Хэш-товара
+     * @return string
+     */
+    public function getHash()
+    {
+        return md5($this->owner->id);
+    }
 
+    /**
+     * Проверяет добавлен ли товар в корзину
+     * @param $yiiComponent
+     * @return mixed
+     */
     public function isInBasket($yiiComponent)
     {
-        return $yiiComponent->isProductInBasket($this->owner->id);
+        return $yiiComponent->isProductInBasket($this->getHash());
     }
 }

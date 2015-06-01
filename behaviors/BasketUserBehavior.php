@@ -8,7 +8,8 @@ use yii\base\InvalidParamException;
 use yii\db\ActiveRecord;
 
 use common\models\User;
-use andreykluev\shopbasket\models\UserProduct;
+use common\models\Product;
+use andreykluev\shopbasket\models\UserBasket;
 
 class BasketUserBehavior extends Behavior
 {
@@ -16,19 +17,11 @@ class BasketUserBehavior extends Behavior
 	{
 	}
 
-	public function getUserProducts()
+	// Связывает пользователя с корзиной
+    public function getUserBasket()
 	{
 		return $this->owner
-			->hasMany(UserProduct::className(), ['id_user' => 'id']);
-	}
-
-	public function getBasketProducts()
-	{
-		return $this->owner
-			->hasMany('\common\models\Product', ['id' => 'id_product'])
-//			->hasMany($this->owner->productClass, ['id' => 'id_product'])
-			->via('userProducts')
-		;
+			->hasMany(UserBasket::className(), ['id_user' => 'id']);
 	}
 
 	/**
@@ -38,7 +31,7 @@ class BasketUserBehavior extends Behavior
 	public function getBasketCount()
 	{
 		return $this->owner
-			->getBasketProducts()
+			->getUserBasket()
 			->count();
 	}
 
@@ -48,9 +41,8 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function getBasketTotal()
 	{
-		$total = User::find()
-			->joinWith('basketProducts')
-			->where(['user.id' => Yii::$app->user->identity->getId()])
+        $total = $this->owner
+            ->getUserBasket()
 			->sum('count');
 
 		return ($total) ? $total : 0;
@@ -62,10 +54,9 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function getBasketCost()
 	{
-		$cost = User::find()
-			->joinWith('basketProducts')
-			->where(['user.id' => Yii::$app->user->identity->getId()])
-			->sum('user_product.price*user_product.count');
+		$cost = $this->owner
+            ->getUserBasket()
+			->sum('price*count');
 
 		return ($cost) ? $cost : 0;
 	}
@@ -75,26 +66,14 @@ class BasketUserBehavior extends Behavior
 	 * @param $pid
 	 * @return int|string
 	 */
-	public function isProductInBasket($pid)
+	public function isProductInBasket($hash)
 	{
 		return User::find()
-			->joinWith('basketProducts')
+			->joinWith('userBasket')
 			->where([
-				'user.id' => Yii::$app->user->identity->getId(),
-				'product.id' => $pid
+				'id_user' => Yii::$app->user->identity->getId(),
+				'hash_product' => $hash
 			])
 			->count();
 	}
-
-	public function getProductInBasket($pid)
-	{
-		$x = User::findOne(Yii::$app->user->identity->getId())
-			->getUserProducts()
-			->with('product')
-			->where(['id_product' => $pid])
-			->one();
-
-		return $x;
-	}
-
 }

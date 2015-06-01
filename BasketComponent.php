@@ -7,6 +7,8 @@ use yii\base\Component;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
 
+use andreykluev\shopbasket\models\UserBasket;
+
 /**
  * Class BasketComponent
  * @package andreykluev\shopbasket
@@ -28,10 +30,7 @@ class BasketComponent extends Component
 	 */
 	public function init()
 	{
-		//$this->isGuest = Yii::$app->user->isGuest;
-
-		// Пока воспринимаем пользователя, как гостя
-		$this->isGuest = true;
+		$this->isGuest = Yii::$app->getUser()->isGuest;
 
 		// Если не гость
 		if (!$this->isGuest) {
@@ -71,7 +70,7 @@ class BasketComponent extends Component
 	 * @return array
 	 * @throws HttpException
 	 */
-	public function insertProduct($hash, $price, $params, $count=1)
+	public function insertProduct($hash, $pid, $price, $params, $count=1)
 	{
 		// Если гость
 		if($this->isGuest) {
@@ -81,12 +80,13 @@ class BasketComponent extends Component
 			if(!$this->isProductInBasket($hash)) {
 				$this->basketProducts[$hash] = [
 					'count' => $count,
+					'id_product' => $pid,
 					'price' => $price,
                     'params' => $params,
 					'inserted_at' => time()
 				];
 			} else {
-                // Если кол-во == 1, то удаляем из корзины
+                // Если кол-во == 0, то удаляем из корзины
                 if(0<$count) {
                     $this->basketProducts[$hash]['count'] = $count;
                 } else {
@@ -96,15 +96,29 @@ class BasketComponent extends Component
 
             Yii::$app->session->set($this->storage, $this->basketProducts);
 		} else {
-			// Или связываем с пользователем в БД
+			// Или в БД, если пользователь авторизован
 			// Если этот товар еще не в корзине
-//			if(!$this->isProductInBasket($product->id)) {
-//				Yii::$app->user->identity->link('basketProducts', $product, [
-//					'count' => $count,
-//					'price' => $product->price,
-//					'inserted_at' => time()
-//				]);
-//			}
+			if(!$this->isProductInBasket($hash)) {
+                $basketProduct = new UserBasket();
+                $basketProduct->id_user = Yii::$app->user->identity->getId();
+                $basketProduct->group = $this->storage;
+                $basketProduct->id_product = $pid;
+                $basketProduct->hash_product = $hash;
+                $basketProduct->count = $count;
+                $basketProduct->price = $price;
+                $basketProduct->params = $params;
+                $basketProduct->save();
+			} else {
+                $basketProduct = UserBasket::findOne(['hash_product' => $hash]);
+
+                // Если кол-во == 0, то удаляем из корзины
+                if(0<$count) {
+                    $basketProduct->count = $count;
+                    $basketProduct->save();
+                } else {
+                    $basketProduct->delete();
+                }
+            }
 		}
 
 		return [
@@ -125,16 +139,11 @@ class BasketComponent extends Component
         if ($this->isGuest) {
             $this->loadFromSession();
             $ids = array_keys($this->basketProducts);
-            $products = call_user_func([$this->productClass, 'find']);
-
-            $products = $products->where(['id' => $ids]);
-
-            return $products->all();
         } else {
-
+            $ids = UserBasket::getUserBasketIds($this->storage);
         }
 
-        return [];
+        return UserBasket::getAllProducts($ids);
     }
 
 	/**
@@ -142,8 +151,8 @@ class BasketComponent extends Component
 	 * @param $pid
 	 * @return int|string
 	 */
-	public function isProductInBasket($pid) {
-		return ($this->isGuest) ? $this->isProductInBasketSession($pid) : Yii::$app->user->identity->isProductInBasket($pid);
+	public function isProductInBasket($hash) {
+		return ($this->isGuest) ? $this->isProductInBasketSession($hash) : Yii::$app->user->identity->isProductInBasket($hash);
 	}
 
 	/**
