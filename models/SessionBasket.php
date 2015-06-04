@@ -54,7 +54,7 @@ class SessionBasket extends Model implements BasketInterface
      * @return array
      * @throws HttpException
      */
-    public function insertProduct($hash, $pid, $price, $params, $count=1)
+    public function insertProduct($hash, $pid, $price, $params=[], $count=1)
     {
         $this->loadProducts();
 
@@ -63,13 +63,15 @@ class SessionBasket extends Model implements BasketInterface
                 'count' => $count,
                 'id_product' => $pid,
                 'price' => $price,
-                'params' => $params,
-                'inserted_at' => time()
+                'params' => Json::encode($params),
+                'created_at' => time(),
+                'updated_at' => time()
             ];
         } else {
             // Если кол-во == 0, то удаляем из корзины
             if(0<$count) {
                 $this->basketProducts[$hash]['count'] = $count;
+                $this->basketProducts[$hash]['updated_at'] = time();
             } else {
                 unset($this->basketProducts[$hash]);
             }

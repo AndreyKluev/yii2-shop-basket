@@ -63,10 +63,11 @@ class DbBasket extends ActiveRecord implements BasketInterface
      * @param $price - цена товара
      * @param $params - дополнительные параметры товара
      * @param $count - количество
+     * @param $created_at
      * @return array
      * @throws HttpException
      */
-    public function insertProduct($hash, $pid, $price, $params, $count=1)
+    public function insertProduct($hash, $pid, $price, $params=[], $count=1)
     {
         // Если этот товар еще не в корзине
         if(!$this->isProductInBasket($hash)) {
@@ -111,7 +112,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
 
     /**
      * Возвращает список товаров в корзине
-     * @return yii\db\ActiveQuery[]
+     * @return array
      */
     public function getBasketProducts()
     {
@@ -119,7 +120,9 @@ class DbBasket extends ActiveRecord implements BasketInterface
             ->where([
                 'id_user' => $this->idUser,
                 'storage' => $this->owner->storageName
-            ]);
+            ])
+            ->asArray()
+            ->all();
     }
 
     /**
@@ -166,5 +169,93 @@ class DbBasket extends ActiveRecord implements BasketInterface
             ->sum('price*count');
 
         return ($cost) ? $cost : 0;
+    }
+
+    /**
+     * Сливает корзины из сессии и из БД
+     */
+    public function merge()
+    {
+        $sessionProducts = Yii::$app->session->get($this->owner->storageName, []);
+
+        // Сливаем корзины из сессии и из БД в соответствии с выбранным методом
+        switch($this->owner->mergeMethod) {
+            // корзина в сессии и корзина в БД (если такая была) будут объеденины, а кол-во одинаковых товаров просуммируются
+            case 'sum':
+                $this->mergeBasket_sum( $sessionProducts );
+                break;
+
+            // корзина в БД будет полностью заменена новой
+            case 'new':
+                $this->mergeBasket_new( $sessionProducts );
+                break;
+
+            // в БД будут добавлены новые товары, а у совпадающих сохраниться наибольшее кол-во
+            case 'max':
+                $this->mergeBasket_max( $sessionProducts );
+                break;
+
+            // в БД будут добавлены только новые товары
+            default:
+                $this->mergeBasket_merge( $sessionProducts );
+        }
+
+        // Очищаем корзину в сессии
+//        Yii::$app->session->set($this->owner->storageName, null);
+    }
+
+    /**
+     * Сливает корзины из сессии и из БД
+     * `sum` - корзина в сессии и корзина в БД (если такая была) будут объеденины, а кол-во одинаковых товаров просуммируются
+     * @param $sessionProducts
+     */
+    public function mergeBasket_sum($sessionProducts)
+    {
+    }
+
+    /**
+     * Сливает корзины из сессии и из БД
+     * `new` - корзина в БД будет полностью заменена новой
+     * @param $sessionProducts
+     */
+    public function mergeBasket_new($sessionProducts)
+    {
+    }
+
+    /**
+     * Сливает корзины из сессии и из БД
+     * `merge` - в БД будут добавлены только новые товары
+     * @param $sessionProducts
+     */
+    public function mergeBasket_merge($sessionProducts)
+    {
+    }
+
+    /**
+     * Сливает корзины из сессии и из БД
+     * `max` - в БД будут добавлены новые товары, а у совпадающих сохраниться наибольшее кол-во
+     * @param $sessionProducts
+     */
+    public function mergeBasket_max($sessionProducts)
+    {
+        $dbProducts = $this->getBasketProducts();
+        var_dump($dbProducts);
+        var_dump($sessionProducts);
+
+        // Пробегаем все товары из БД и сравниваем кол-во
+        // Обработанные товары удаляем из сессии
+        foreach($dbProducts as $bItem) {
+            if( isset($sessionProducts[ $bItem['hash_product'] ]) &&
+                $bItem['count']<$sessionProducts[ $bItem['hash_product'] ]['count'] ) {
+                /**
+                 * @todo Нужно обновить кол-во в БД
+                 */
+            }
+        }
+
+        // Пробегаем оставшиеся в сессии товары и добавляем их в БД
+        foreach($sessionProducts as $hash => $bItem) {
+            $this->insertProduct($hash, $bItem['id_product'], $bItem['price'], $bItem['params'], $bItem['count']);
+        }
     }
 }

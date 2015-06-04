@@ -37,6 +37,11 @@ class BasketComponent extends Component
     public $basket;
 
     /**
+     * Способ слияния корзин
+     */
+    public $mergeMethod = 'max';
+
+    /**
      * Инициализируем корзину
      */
     public function init()
@@ -52,60 +57,11 @@ class BasketComponent extends Component
         }
 
         $this->basket->owner  = $this;
+
+        // Если в сессии осталась корзина, а пользователь уже не гость => сливаем в БД
+        if(!is_null(Yii::$app->session->get($this->storageName, null)) && !Yii::$app->getUser()->isGuest) {
+            $this->basket->merge();
+        }
+
     }
-
-    // **********************************************************************************************
-
-	public $onLogin;
-
-	/**
-	 * Сливает корзины из сессии и из БД
-	 * `sum` - корзина в сессии и корзина в БД (если такая была) будут объеденины, а кол-во одинаковых товаров просуммируются
-	 */
-	public function mergeBasket_sum()
-	{
-//		foreach($this->basketProducts as $id => $bp) {
-//			$product = call_user_func([$this->productClass, 'findOne'], [$id]);
-//
-//			if ($this->isProductInBasket($product->id)) {
-//				$oldParams = Yii::$app->user->identity->getProductInBasket($product->id);
-//
-//				var_dump($oldParams);
-//				die();
-//				Yii::$app->user->identity->unlink('basketProducts', $product, true);
-//				$bp['count'] = $bp['count'] + $oldParams->count;
-//				$bp['inserted_at'] = min($bp['inserted_at'], $oldParams->inserted_at);
-//			}
-//
-//			Yii::$app->user->identity->link('basketProducts', $product, [
-//				'count' => $bp['count'],
-//				'price' => $bp['price'],
-//				'inserted_at' => $bp['inserted_at']
-//			]);
-//		}
-	}
-
-	/**
-	 * Сливает корзины из сессии и из БД
-	 * `new` - корзина в БД будет полностью заменена новой
-	 */
-	public function mergeBasket_new()
-	{
-	}
-
-	/**
-	 * Сливает корзины из сессии и из БД
-	 * `merge` - в БД будут добавлены только новые товары
-	 */
-	public function mergeBasket_merge()
-	{
-	}
-
-	/**
-	 * Сливает корзины из сессии и из БД
-	 * `max` - в БД будут добавлены новые товары, а у совпадающих сохраниться наибольшее кол-во
-	 */
-	public function mergeBasket_max()
-	{
-	}
 }
