@@ -51,5 +51,4 @@ interface BasketInterface
      * @return float
      */
     public function getBasketCost();
-
 }

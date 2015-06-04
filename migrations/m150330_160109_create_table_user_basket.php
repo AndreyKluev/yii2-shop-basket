@@ -9,7 +9,7 @@ class m150330_160109_create_table_user_basket extends Migration
     {
         $this->createTable('{{%user_basket}}', [
             'id' => Schema::TYPE_PK,
-            'group' => Schema::TYPE_STRING . '(50)',
+            'storage' => Schema::TYPE_STRING . '(50)',
             'id_user' => Schema::TYPE_INTEGER . ' NOT NULL',
             'id_product' => Schema::TYPE_STRING . ' NOT NULL',
             'hash_product' => Schema::TYPE_STRING . '(32) NOT NULL',
@@ -19,8 +19,6 @@ class m150330_160109_create_table_user_basket extends Migration
             'created_at' => Schema::TYPE_INTEGER,
             'updated_at' => Schema::TYPE_INTEGER,
         ]);
-
-//        $this->createIndex('idx_meta_tag_url', '{{%meta_tag}}', 'url');
     }
 
     public function safeDown()

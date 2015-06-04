@@ -21,12 +21,12 @@ class BasketProductBehavior extends Behavior
     }
 
     /**
-     * Проверяет добавлен ли товар в корзину
-     * @param $yiiComponent
+     * Проверяет добавлен ли товар в корзину '$idComponent'
+     * @param $idComponent
      * @return mixed
      */
-    public function isInBasket($yiiComponent)
+    public function isInBasket($idComponent)
     {
-        return $yiiComponent->isProductInBasket($this->getHash());
+        return Yii::$app->get($idComponent)->basket->isProductInBasket($this->getHash());
     }
 }

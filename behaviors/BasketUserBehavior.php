@@ -20,8 +20,8 @@ class BasketUserBehavior extends Behavior
 	// Связывает пользователя с корзиной
     public function getUserBasket()
 	{
-		return $this->owner
-			->hasMany(UserBasket::className(), ['id_user' => 'id']);
+//		return $this->owner
+//			->hasMany(UserBasket::className(), ['id_user' => 'id']);
 	}
 
 	/**
@@ -30,9 +30,9 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function getBasketCount()
 	{
-		return $this->owner
-			->getUserBasket()
-			->count();
+//		return $this->owner
+//			->getUserBasket()
+//			->count();
 	}
 
 	/**
@@ -41,11 +41,11 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function getBasketTotal()
 	{
-        $total = $this->owner
-            ->getUserBasket()
-			->sum('count');
-
-		return ($total) ? $total : 0;
+//        $total = $this->owner
+//            ->getUserBasket()
+//			->sum('count');
+//
+//		return ($total) ? $total : 0;
 	}
 
 	/**
@@ -54,11 +54,11 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function getBasketCost()
 	{
-		$cost = $this->owner
-            ->getUserBasket()
-			->sum('price*count');
-
-		return ($cost) ? $cost : 0;
+//		$cost = $this->owner
+//            ->getUserBasket()
+//			->sum('price*count');
+//
+//		return ($cost) ? $cost : 0;
 	}
 
 	/**
@@ -68,12 +68,12 @@ class BasketUserBehavior extends Behavior
 	 */
 	public function isProductInBasket($hash)
 	{
-		return User::find()
-			->joinWith('userBasket')
-			->where([
-				'id_user' => Yii::$app->user->identity->getId(),
-				'hash_product' => $hash
-			])
-			->count();
+//		return User::find()
+//			->joinWith('userBasket')
+//			->where([
+//				'id_user' => Yii::$app->user->identity->getId(),
+//				'hash_product' => $hash
+//			])
+//			->count();
 	}
 }
