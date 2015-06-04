@@ -201,7 +201,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
         }
 
         // Очищаем корзину в сессии
-//        Yii::$app->session->set($this->owner->storageName, null);
+        Yii::$app->session->set($this->owner->storageName, null);
     }
 
     /**
@@ -239,8 +239,6 @@ class DbBasket extends ActiveRecord implements BasketInterface
     public function mergeBasket_max($sessionProducts)
     {
         $dbProducts = $this->getBasketProducts();
-        var_dump($dbProducts);
-        var_dump($sessionProducts);
 
         // Пробегаем все товары из БД и сравниваем кол-во
         // Обработанные товары удаляем из сессии
