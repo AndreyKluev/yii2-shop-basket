@@ -71,14 +71,15 @@ class DbBasket extends ActiveRecord implements BasketInterface
     {
         // Если этот товар еще не в корзине
         if(!$this->isProductInBasket($hash)) {
-            $this->id_user = $this->idUser;
-            $this->storage = $this->owner->storageName;
-            $this->id_product = $pid;
-            $this->hash_product = $hash;
-            $this->count = $count;
-            $this->price = $price;
-            $this->params = Json::encode($params);
-            $this->save();
+            $basketProduct = new static;
+            $basketProduct->id_user = $this->idUser;
+            $basketProduct->storage = $this->owner->storageName;
+            $basketProduct->id_product = $pid;
+            $basketProduct->hash_product = $hash;
+            $basketProduct->count = $count;
+            $basketProduct->price = $price;
+            $basketProduct->params = Json::encode($params);
+            $basketProduct->save();
         } else {
             $basketProduct = $this->findOne([
                 'id_user' => $this->idUser,
@@ -201,7 +202,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
         }
 
         // Очищаем корзину в сессии
-        Yii::$app->session->set($this->owner->storageName, null);
+//        Yii::$app->session->set($this->owner->storageName, null);
     }
 
     /**
@@ -243,11 +244,15 @@ class DbBasket extends ActiveRecord implements BasketInterface
         // Пробегаем все товары из БД и сравниваем кол-во
         // Обработанные товары удаляем из сессии
         foreach($dbProducts as $bItem) {
-            if( isset($sessionProducts[ $bItem['hash_product'] ]) &&
-                $bItem['count']<$sessionProducts[ $bItem['hash_product'] ]['count'] ) {
-                /**
-                 * @todo Нужно обновить кол-во в БД
-                 */
+            if( isset($sessionProducts[ $bItem['hash_product'] ])) {
+                if($bItem['count']<$sessionProducts[ $bItem['hash_product'] ]['count']) {
+                    /**
+                     * @todo Нужно обновить кол-во в БД
+                     */
+                }
+
+                // Удаляем из сессионной корзины
+                unset( $sessionProducts[ $bItem['hash_product'] ] );
             }
         }
 
