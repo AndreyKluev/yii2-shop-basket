@@ -101,7 +101,13 @@ class SessionBasket extends Model implements BasketInterface
     public function getBasketProducts()
     {
         $this->loadProducts();
-        return $this->basketProducts;
+        return array_map(
+            function($item) {
+                $item['params'] = Json::decode($item['params']);
+                return $item;
+            },
+            $this->basketProducts
+        );
     }
 
     /**

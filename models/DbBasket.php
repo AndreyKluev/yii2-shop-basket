@@ -5,6 +5,7 @@ namespace andreykluev\shopbasket\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
+use yii\helpers\Html;
 use yii\web\HttpException;
 
 use andreykluev\shopbasket\BasketInterface;
@@ -20,6 +21,8 @@ use andreykluev\shopbasket\BasketInterface;
  * @property float   $price         Цена товара
  * @property integer $count         Количество
  * @property array   $params        Дополнительные параметры
+ * @property array   $created_at    Дата добавления товара в корзину
+ * @property array   $updated_at    Дата изменения товара
  */
 class DbBasket extends ActiveRecord implements BasketInterface
 {
@@ -79,6 +82,9 @@ class DbBasket extends ActiveRecord implements BasketInterface
             $basketProduct->count = $count;
             $basketProduct->price = $price;
             $basketProduct->params = Json::encode($params);
+            $basketProduct->created_at = time();
+            $basketProduct->updated_at = time();
+
             $basketProduct->save();
         } else {
             $basketProduct = $this->findOne([
@@ -122,13 +128,19 @@ class DbBasket extends ActiveRecord implements BasketInterface
      */
     public function getBasketProducts()
     {
-        return $this->find()
+        return array_map(
+            function($item) {
+                $item['params'] = Json::decode($item['params']);
+                return $item;
+            },
+            $this->find()
             ->where([
                 'id_user' => $this->idUser,
                 'storage' => $this->owner->storageName
             ])
             ->asArray()
-            ->all();
+            ->all()
+        );
     }
 
     /**
@@ -207,7 +219,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
         }
 
         // Очищаем корзину в сессии
-//        Yii::$app->session->set($this->owner->storageName, null);
+        Yii::$app->session->set($this->owner->storageName, null);
     }
 
     /**
@@ -263,7 +275,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
 
         // Пробегаем оставшиеся в сессии товары и добавляем их в БД
         foreach($sessionProducts as $hash => $bItem) {
-            $this->insertProduct($hash, $bItem['id_product'], $bItem['price'], $bItem['params'], $bItem['count']);
+            $this->insertProduct($hash, $bItem['id_product'], $bItem['price'], Json::decode($bItem['params']), $bItem['count']);
         }
     }
 }
