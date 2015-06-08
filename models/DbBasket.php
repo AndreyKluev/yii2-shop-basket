@@ -102,10 +102,15 @@ class DbBasket extends ActiveRecord implements BasketInterface
         }
 
         return [
-            'total' => [
+            'global' => [
                 'count' => Yii::$app->formatter->asInteger( $this->getBasketCount() ),
                 'total' => Yii::$app->formatter->asInteger( $this->getBasketTotal() ),
-                'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' )
+                'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' ),
+            ],
+            'current' => [
+                'price' => Yii::$app->formatter->asCurrency($price, 'RUR'),
+                'count' => $count,
+                'cost' => Yii::$app->formatter->asCurrency($price*$count, 'RUR'),
             ],
             'result' => $this->isProductInBasket($hash)
         ];
