@@ -111,6 +111,14 @@ class SessionBasket extends Model implements BasketInterface
     }
 
     /**
+     * Очищает корзину
+     */
+    public function eraseBasket()
+    {
+        Yii::$app->session->set($this->owner->storageName, null);
+    }
+
+    /**
      * Возвращает количество наименований товара в корзине
      * @return int
      */

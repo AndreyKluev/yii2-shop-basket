@@ -144,6 +144,17 @@ class DbBasket extends ActiveRecord implements BasketInterface
     }
 
     /**
+     * Очищает корзину
+     */
+    public function eraseBasket()
+    {
+        $this->deleteAll([
+            'id_user' => $this->idUser,
+            'storage' => $this->owner->storageName
+        ]);
+    }
+
+    /**
      * Возвращает количество наименований товара в корзине
      * @return int
      */
