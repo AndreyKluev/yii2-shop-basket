@@ -81,14 +81,14 @@ class SessionBasket extends Model implements BasketInterface
 
         return [
             'global' => [
-                'count' => Yii::$app->formatter->asInteger( $this->getBasketCount() ),
-                'total' => Yii::$app->formatter->asInteger( $this->getBasketTotal() ),
-                'cost'  => Yii::$app->formatter->asCurrency( $this->getBasketCost(), 'RUR' ),
+                'count' => Yii::$app->formatter->asInteger($this->getBasketCount()),
+                'total' => Yii::$app->formatter->asInteger($this->getBasketTotal()),
+                'cost'  => Yii::$app->formatter->asCurrency($this->getBasketCost()),
             ],
             'current' => [
-                'price' => Yii::$app->formatter->asCurrency($price, 'RUR'),
+                'price' => Yii::$app->formatter->asCurrency($price),
                 'count' => $count,
-                'cost' => Yii::$app->formatter->asCurrency($price*$count, 'RUR'),
+                'cost' => Yii::$app->formatter->asCurrency($price*$count),
             ],
             'result' => $this->isProductInBasket($hash)
         ];
