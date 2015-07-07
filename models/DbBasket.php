@@ -5,7 +5,6 @@ namespace andreykluev\shopbasket\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
-use yii\helpers\Html;
 use yii\web\HttpException;
 
 use andreykluev\shopbasket\BasketInterface;
@@ -66,7 +65,6 @@ class DbBasket extends ActiveRecord implements BasketInterface
      * @param $price - цена товара
      * @param $params - дополнительные параметры товара
      * @param $count - количество
-     * @param $created_at
      * @return array
      * @throws HttpException
      */
@@ -141,6 +139,21 @@ class DbBasket extends ActiveRecord implements BasketInterface
             ->asArray()
             ->all()
         );
+    }
+
+    /**
+     * @param $hash
+     * @return mixed
+     */
+    public function getProductById($hash)
+    {
+        return $this->find()
+            ->where([
+                'id_user' => $this->idUser,
+                'hash_product' => $hash
+            ])
+            ->asArray()
+            ->one();
     }
 
     /**

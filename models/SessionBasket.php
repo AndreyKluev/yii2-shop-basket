@@ -53,6 +53,8 @@ class SessionBasket extends Model implements BasketInterface
      * @param $count - количество
      * @return array
      * @throws HttpException
+     * @throws \yii\base\InvalidParamException
+     * @throws \yii\base\InvalidConfigException
      */
     public function insertProduct($hash, $pid, $price, $params=[], $count=1)
     {
@@ -97,6 +99,7 @@ class SessionBasket extends Model implements BasketInterface
     /**
      * Возвращает список товаров в корзине
      * @return array
+     * @throws \yii\base\InvalidParamException
      */
     public function getBasketProducts()
     {
@@ -108,6 +111,15 @@ class SessionBasket extends Model implements BasketInterface
             },
             $this->basketProducts
         );
+    }
+
+    /**
+     * @param $hash
+     * @return null
+     */
+    public function getProductById($hash)
+    {
+        return ($this->isProductInBasket($hash)) ? $this->basketProducts[$hash] : null;
     }
 
     /**

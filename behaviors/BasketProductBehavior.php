@@ -4,11 +4,11 @@ namespace andreykluev\shopbasket\behaviors;
 
 use Yii;
 use yii\base\Behavior;
-use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
-use common\models\User;
-
+/**
+ * Class BasketProductBehavior
+ * @package andreykluev\shopbasket\behaviors
+ */
 class BasketProductBehavior extends Behavior
 {
     /**
@@ -21,9 +21,32 @@ class BasketProductBehavior extends Behavior
     }
 
     /**
+     * @param string $idComponent
+     * @return mixed
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getBasketPrice($idComponent = 'basket')
+    {
+        $product = Yii::$app->get($idComponent)->basket->getProductById($this->getHash());
+        return $product['price'];
+    }
+
+    /**
+     * @param string $idComponent
+     * @return mixed
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getBasketCount($idComponent = 'basket')
+    {
+        $product = Yii::$app->get($idComponent)->basket->getProductById($this->getHash());
+        return $product['count'];
+    }
+
+    /**
      * Проверяет добавлен ли товар в корзину '$idComponent'
      * @param $idComponent
      * @return mixed
+     * @throws \yii\base\InvalidConfigException
      */
     public function isInBasket($idComponent)
     {
