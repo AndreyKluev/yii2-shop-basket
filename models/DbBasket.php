@@ -26,6 +26,11 @@ use andreykluev\shopbasket\BasketInterface;
 class DbBasket extends ActiveRecord implements BasketInterface
 {
     /**
+     * Товары корзины
+     */
+    public $basketProducts;
+
+    /**
      * id пользователя, с чьей корзиной работаем
      */
     public $idUser;
@@ -50,12 +55,18 @@ class DbBasket extends ActiveRecord implements BasketInterface
      */
     public function isProductInBasket($hash)
     {
-        return (bool)$this->find()
-            ->where([
-                'id_user' => $this->idUser,
-                'hash_product' => $hash
-            ])
-            ->count();
+        foreach($this->owner->cache as $item) {
+            if ($item['hash_product'] == $hash) return true;
+        }
+
+        return false;
+
+//        return (bool)$this->find()
+//            ->where([
+//                'id_user' => $this->idUser,
+//                'hash_product' => $hash
+//            ])
+//            ->count();
     }
 
     /**

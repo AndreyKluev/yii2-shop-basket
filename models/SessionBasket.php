@@ -40,8 +40,8 @@ class SessionBasket extends Model implements BasketInterface
      */
     public function isProductInBasket($hash)
     {
-        $this->loadProducts();
-        return isset($this->basketProducts[$hash]);
+//        $this->loadProducts();
+        return isset($this->owner->cache[$hash]);
     }
 
     /**

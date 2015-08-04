@@ -42,6 +42,11 @@ class BasketComponent extends Component
     public $mergeMethod = 'max';
 
     /**
+     * Кеш товаров корзины
+     */
+    public $cache = [];
+
+    /**
      * Инициализируем корзину
      */
     public function init()
@@ -63,5 +68,8 @@ class BasketComponent extends Component
             $this->basket->merge();
         }
 
+        // Кешируем товары
+        // Это нужно, чтобы для проверки в корзине товар или нет, не делать запросы в БД для каждого товара
+        $this->cache = $this->basket->getBasketProducts();
     }
 }
