@@ -116,6 +116,9 @@ class DbBasket extends ActiveRecord implements BasketInterface
             }
         }
 
+        // После изменения товара в корзине, нужно обновить наш кеш
+        $this->owner->cache = $this->getBasketProducts();
+
         return [
             'global' => [
                 'count' => Yii::$app->formatter->asInteger($this->getBasketCount()),

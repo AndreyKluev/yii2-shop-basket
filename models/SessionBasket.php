@@ -40,7 +40,6 @@ class SessionBasket extends Model implements BasketInterface
      */
     public function isProductInBasket($hash)
     {
-//        $this->loadProducts();
         return isset($this->owner->cache[$hash]);
     }
 
@@ -80,6 +79,9 @@ class SessionBasket extends Model implements BasketInterface
         }
 
         Yii::$app->session->set($this->owner->storageName, $this->basketProducts);
+
+        // После изменения товара в корзине, нужно обновить наш кеш
+        $this->owner->cache = $this->getBasketProducts();
 
         return [
             'global' => [
