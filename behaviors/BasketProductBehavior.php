@@ -48,7 +48,7 @@ class BasketProductBehavior extends Behavior
      * @return mixed
      * @throws \yii\base\InvalidConfigException
      */
-    public function isInBasket($idComponent)
+    public function isInBasket($idComponent = 'basket')
     {
         return Yii::$app->get($idComponent)->basket->isProductInBasket($this->getHash());
     }

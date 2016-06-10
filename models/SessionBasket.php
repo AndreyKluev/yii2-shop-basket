@@ -72,6 +72,7 @@ class SessionBasket extends Model implements BasketInterface
             // Если кол-во == 0, то удаляем из корзины
             if(0<$count) {
                 $this->basketProducts[$hash]['count'] = $count;
+                $this->basketProducts[$hash]['price'] = $price;
                 $this->basketProducts[$hash]['updated_at'] = time();
             } else {
                 unset($this->basketProducts[$hash]);

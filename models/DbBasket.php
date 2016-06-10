@@ -110,6 +110,7 @@ class DbBasket extends ActiveRecord implements BasketInterface
             // Если кол-во == 0, то удаляем из корзины
             if(0<$count) {
                 $basketProduct->count = $count;
+                $basketProduct->price = $price;
                 $basketProduct->save();
             } else {
                 $basketProduct->delete();
